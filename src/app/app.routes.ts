@@ -33,6 +33,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'canteen/menu',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/canteen/menu-management/menu-management').then(
+        (m) => m.MenuManagement
+      ),
+  },
+  {
     path: 'kitchen',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -4,7 +4,10 @@
       <h2>🍽️ Canteen Dashboard</h2>
       <small>{{ user()?.name }} • {{ user()?.role }}</small>
     </div>
-    <button class="logout-btn" (click)="logout()">Logout</button>
+    <div class="header-actions">
+      <button class="nav-btn" (click)="goToMenuManagement()">📝 Menu</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
   </header>
 
   <div class="tabs-bar">

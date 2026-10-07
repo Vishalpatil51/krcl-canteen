@@ -10,7 +10,6 @@ export class MenuService {
   readonly lunchMenu = this.lunchMenuSignal.asReadonly();
 
   constructor() {
-    // Mock data load karo
     this.loadMockMenus();
   }
 
@@ -20,7 +19,74 @@ export class MenuService {
       : this.lunchMenuSignal();
   }
 
-  // Mock data - baad me API se replace hoga
+  updateItemPrice(meal: MealType, itemId: string, newPrice: number): void {
+    this.updateMenu(meal, (menu) => ({
+      ...menu,
+      items: menu.items.map((i) =>
+        i.id === itemId ? { ...i, price: newPrice } : i
+      ),
+    }));
+  }
+
+  updateItemQty(meal: MealType, itemId: string, newQty: number): void {
+    this.updateMenu(meal, (menu) => ({
+      ...menu,
+      items: menu.items.map((i) =>
+        i.id === itemId
+          ? {
+              ...i,
+              availableQty: newQty,
+              isOutOfStock: newQty <= 0,
+            }
+          : i
+      ),
+    }));
+  }
+
+  toggleOutOfStock(meal: MealType, itemId: string): void {
+    this.updateMenu(meal, (menu) => ({
+      ...menu,
+      items: menu.items.map((i) =>
+        i.id === itemId ? { ...i, isOutOfStock: !i.isOutOfStock } : i
+      ),
+    }));
+  }
+
+  addItem(meal: MealType, item: Omit<DailyMenuItem, 'id' | 'soldQty'>): void {
+    this.updateMenu(meal, (menu) => ({
+      ...menu,
+      items: [
+        ...menu.items,
+        {
+          ...item,
+          id: 'new-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          soldQty: 0,
+        },
+      ],
+    }));
+  }
+
+  removeItem(meal: MealType, itemId: string): void {
+    this.updateMenu(meal, (menu) => ({
+      ...menu,
+      items: menu.items.filter((i) => i.id !== itemId),
+    }));
+  }
+
+  updateCutoff(meal: MealType, cutoffTime: string): void {
+    this.updateMenu(meal, (menu) => ({ ...menu, cutoffTime }));
+  }
+
+  private updateMenu(meal: MealType, updater: (menu: DailyMenu) => DailyMenu): void {
+    if (meal === 'BREAKFAST') {
+      const current = this.breakfastMenuSignal();
+      if (current) this.breakfastMenuSignal.set(updater(current));
+    } else {
+      const current = this.lunchMenuSignal();
+      if (current) this.lunchMenuSignal.set(updater(current));
+    }
+  }
+
   private loadMockMenus(): void {
     const today = new Date().toISOString().split('T')[0];
 

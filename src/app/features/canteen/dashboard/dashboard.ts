@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -77,6 +77,10 @@ export class CanteenDashboard {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  goToMenuManagement(): void {
+    this.router.navigate(['/canteen/menu']);
   }
 
   logout(): void {

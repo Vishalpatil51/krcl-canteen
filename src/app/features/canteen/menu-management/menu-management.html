@@ -1,0 +1,179 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>📝 Menu Management</h2>
+      <small>{{ user()?.name }} • {{ user()?.role }}</small>
+    </div>
+    <div class="header-actions">
+      <button class="nav-btn" (click)="goToDashboard()">📊 Dashboard</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="banner success">✓ {{ successMessage() }}</div>
+  }
+
+  <div class="tabs-bar">
+    <button
+      class="tab"
+      [class.active]="activeMeal() === 'BREAKFAST'"
+      (click)="setMeal('BREAKFAST')"
+    >
+      🍳 Breakfast
+      <span class="count">{{ breakfast()?.items?.length ?? 0 }}</span>
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeMeal() === 'LUNCH'"
+      (click)="setMeal('LUNCH')"
+    >
+      🍛 Lunch
+      <span class="count">{{ lunch()?.items?.length ?? 0 }}</span>
+    </button>
+  </div>
+
+  <main class="content">
+    @if (currentMenu; as menu) {
+      <div class="menu-info">
+        <span>⏰ {{ menu.startTime }} - {{ menu.endTime }}</span>
+        <span>🛑 Cutoff: {{ menu.cutoffTime }}</span>
+      </div>
+
+      <div class="menu-list">
+        @for (item of menu.items; track item.id) {
+          <div class="menu-item-card" [class.out-of-stock]="item.isOutOfStock">
+            @if (editItem()?.id === item.id) {
+              <!-- Edit mode -->
+              <div class="edit-form">
+                <div class="edit-row">
+                  <label>Price (₹)</label>
+                  <input
+                    type="number"
+                    [ngModel]="editItem()!.price"
+                    (ngModelChange)="editItem.set({ ...editItem()!, price: +$event })"
+                  />
+                </div>
+                <div class="edit-row">
+                  <label>Available Qty</label>
+                  <input
+                    type="number"
+                    [ngModel]="editItem()!.availableQty"
+                    (ngModelChange)="editItem.set({ ...editItem()!, availableQty: +$event })"
+                  />
+                </div>
+                <div class="edit-actions">
+                  <button class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                  <button class="btn-primary" (click)="saveEdit()">Save</button>
+                </div>
+              </div>
+            } @else {
+              <!-- View mode -->
+              <div class="item-main">
+                <div class="item-info">
+                  <div class="item-name">
+                    {{ item.name }}
+                    @if (item.isOutOfStock) {
+                      <span class="oos-badge">OUT OF STOCK</span>
+                    }
+                  </div>
+                  <div class="item-meta">
+                    ₹{{ item.price }} / {{ item.unit }} •
+                    Available: <strong>{{ item.availableQty }}</strong> •
+                    Sold: {{ item.soldQty }}
+                  </div>
+                </div>
+
+                <div class="item-actions">
+                  <button class="icon-btn edit" (click)="startEdit(item)" title="Edit">
+                    ✏️
+                  </button>
+                  <button
+                    class="icon-btn stock"
+                    (click)="toggleStock(item)"
+                    [title]="item.isOutOfStock ? 'Back in stock' : 'Mark out of stock'"
+                  >
+                    {{ item.isOutOfStock ? '✅' : '🚫' }}
+                  </button>
+                  <button class="icon-btn delete" (click)="removeItem(item)" title="Remove">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <button class="add-item-btn" (click)="openAddForm()">
+        ➕ Add New Item
+      </button>
+    }
+  </main>
+
+  @if (showAddForm()) {
+    <div class="overlay" (click)="closeAddForm()"></div>
+    <div class="modal">
+      <h3>Add New Item to {{ activeMeal() }}</h3>
+
+      <div class="form-group">
+        <label>Item Name</label>
+        <input
+          type="text"
+          placeholder="e.g. Masala Dosa"
+          [ngModel]="newItemName()"
+          (ngModelChange)="newItemName.set($event)"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select
+          [ngModel]="newItemCategory()"
+          (ngModelChange)="newItemCategory.set($event)"
+        >
+          @for (cat of categoryOptions; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Unit</label>
+          <select
+            [ngModel]="newItemUnit()"
+            (ngModelChange)="newItemUnit.set($event)"
+          >
+            @for (u of unitOptions; track u) {
+              <option [value]="u">{{ u }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Price (₹)</label>
+          <input
+            type="number"
+            [ngModel]="newItemPrice()"
+            (ngModelChange)="newItemPrice.set(+$event)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Available Qty</label>
+          <input
+            type="number"
+            [ngModel]="newItemQty()"
+            (ngModelChange)="newItemQty.set(+$event)"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAddForm()">Cancel</button>
+        <button class="btn-primary" (click)="addNewItem()">Add Item</button>
+      </div>
+    </div>
+  }
+</div>
