@@ -17,11 +17,27 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'employee/orders',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/employee/order-history/order-history').then(
+        (m) => m.OrderHistory
+      ),
+  },
+  {
     path: 'canteen',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/canteen/dashboard/dashboard').then(
         (m) => m.CanteenDashboard
+      ),
+  },
+  {
+    path: 'kitchen',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/kitchen/dashboard/dashboard').then(
+        (m) => m.KitchenDashboard
       ),
   },
   {

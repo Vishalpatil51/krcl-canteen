@@ -72,6 +72,10 @@ export class EmployeeDashboard {
     this.errorMessage.set('');
   }
 
+  goToOrders(): void {
+    this.router.navigate(['/employee/orders']);
+  }
+
   placeOrder(): void {
     const u = this.user();
     if (!u) return;
@@ -88,7 +92,9 @@ export class EmployeeDashboard {
       paymentMode: this.paymentMode(),
       items: this.cart.cart().map((c) => ({
         dailyMenuItemId: c.item.id,
+        itemName: c.item.name,
         quantity: c.quantity,
+        price: c.item.price,
       })),
     };
 
@@ -104,7 +110,7 @@ export class EmployeeDashboard {
         this.cart.clear();
         this.showCheckout.set(false);
         this.successMessage.set(
-          `Order placed! Order #${order.orderNumber}. Status: ${order.status}`
+          `Order placed! Order #${order.orderNumber}. Total ₹${order.totalAmount}`
         );
         setTimeout(() => this.successMessage.set(''), 5000);
       })

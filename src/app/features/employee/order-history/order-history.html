@@ -1,0 +1,94 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>📋 My Orders</h2>
+      <small>{{ user()?.name }} • Floor {{ user()?.floorNumber ?? '-' }}</small>
+    </div>
+    <div class="header-actions">
+      <button class="nav-btn" (click)="goToMenu()">🍽️ Menu</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="tabs-bar">
+    <button
+      class="tab"
+      [class.active]="activeFilter() === 'ALL'"
+      (click)="setFilter('ALL')"
+    >
+      All ({{ allMyOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeFilter() === 'ACTIVE'"
+      (click)="setFilter('ACTIVE')"
+    >
+      🔄 Active ({{ activeOrders.length }})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeFilter() === 'PAST'"
+      (click)="setFilter('PAST')"
+    >
+      ✓ Past ({{ pastOrders.length }})
+    </button>
+  </div>
+
+  <main class="content">
+    @if (filteredOrders.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No orders yet</p>
+        <button class="btn-primary" (click)="goToMenu()">
+          🍽️ Order Something
+        </button>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of filteredOrders; track order.id) {
+          <div class="order-card" [class]="'status-' + order.status.toLowerCase()">
+            <div class="order-top">
+              <div>
+                <div class="order-number">#{{ order.orderNumber }}</div>
+                <div class="order-date">
+                  {{ formatDate(order.createdAt) }} • {{ formatTime(order.createdAt) }}
+                </div>
+              </div>
+              <div class="status-badge" [class]="'badge-' + order.status.toLowerCase()">
+                {{ statusIcon(order.status) }} {{ statusLabel(order.status) }}
+              </div>
+            </div>
+
+            <div class="meal-type">🍽️ {{ order.mealType }}</div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="item-row">
+                  <span>{{ item.itemName }}</span>
+                  <span class="qty">×{{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-bottom">
+              <div class="total">
+                <span>Total</span>
+                <strong>₹{{ order.totalAmount }}</strong>
+              </div>
+              <div class="payment-info">
+                <span
+                  class="payment-badge"
+                  [class.paid]="order.paymentStatus === 'PAID'"
+                  [class.pending]="order.paymentStatus !== 'PAID'"
+                >
+                  {{ order.paymentStatus === 'PAID' ? '✓ Paid' : '⏳ Payment Pending' }}
+                  • {{ order.paymentMode }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

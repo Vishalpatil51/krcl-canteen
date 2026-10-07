@@ -5,6 +5,7 @@
       <small>Welcome, {{ user()?.name }} (Floor {{ user()?.floorNumber ?? '-' }})</small>
     </div>
     <div class="header-actions">
+      <button class="nav-btn" (click)="goToOrders()">📋 My Orders</button>
       <button class="cart-btn" (click)="openCart()">
         🛒 Cart
         @if (cart.totalItems() > 0) {
@@ -64,7 +65,6 @@
     </section>
   </main>
 
-  <!-- Cart Sidebar -->
   @if (showCart()) {
     <div class="overlay" (click)="closeCart()"></div>
     <aside class="cart-panel">
@@ -105,7 +105,6 @@
     </aside>
   }
 
-  <!-- Checkout Modal -->
   @if (showCheckout()) {
     <div class="overlay" (click)="closeCheckout()"></div>
     <div class="checkout-modal">

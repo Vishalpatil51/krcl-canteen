@@ -42,12 +42,16 @@ export interface Order {
   notes?: string;
 }
 
+export interface PlaceOrderItem {
+  dailyMenuItemId: string;
+  itemName: string;
+  quantity: number;
+  price: number;
+}
+
 export interface PlaceOrderRequest {
   mealType: MealType;
   paymentMode: PaymentMode;
-  items: {
-    dailyMenuItemId: string;
-    quantity: number;
-  }[];
+  items: PlaceOrderItem[];
   notes?: string;
 }

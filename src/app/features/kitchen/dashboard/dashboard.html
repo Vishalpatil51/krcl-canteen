@@ -1,0 +1,81 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>👨‍🍳 Kitchen Dashboard</h2>
+      <small>{{ user()?.name }} • {{ user()?.role }}</small>
+    </div>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </header>
+
+  <div class="tabs-bar">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="tab"
+        [class.active]="activeTab() === tab.key"
+        (click)="setTab(tab.key)"
+      >
+        <span>{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
+        <span class="count">{{ countByStatus(tab.key) }}</span>
+      </button>
+    }
+  </div>
+
+  <main class="content">
+    @if (orders.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🍽️</div>
+        <p>No orders in this category</p>
+      </div>
+    } @else {
+      <div class="orders-grid">
+        @for (order of orders; track order.id) {
+          <div class="order-card" [class]="'status-' + order.status.toLowerCase()">
+            <div class="order-header">
+              <div>
+                <div class="order-number">#{{ order.orderNumber }}</div>
+                <div class="order-time">{{ formatTime(order.createdAt) }}</div>
+              </div>
+              <span class="floor-badge">Floor {{ order.floorNumber }}</span>
+            </div>
+
+            <div class="employee-info">
+              <div class="avatar">{{ order.userName.charAt(0) }}</div>
+              <div>
+                <div class="emp-name">{{ order.userName }}</div>
+                <div class="emp-meal">{{ order.mealType }}</div>
+              </div>
+            </div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="item-row">
+                  <span class="item-name">{{ item.itemName }}</span>
+                  <span class="qty">×{{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-actions">
+              @if (order.status === 'ACCEPTED') {
+                <button class="action-btn start" (click)="startCooking(order)">
+                  🔥 Start Cooking
+                </button>
+              }
+              @if (order.status === 'PREPARING') {
+                <button class="action-btn ready" (click)="markReady(order)">
+                  ✅ Mark Ready
+                </button>
+              }
+              @if (order.status === 'READY') {
+                <div class="ready-badge">
+                  🎉 Ready for pickup
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

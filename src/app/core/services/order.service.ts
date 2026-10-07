@@ -16,7 +16,17 @@ export class OrderService {
   ): Promise<Order> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const totalAmount = this.calculateTotal(request);
+        const items = request.items.map((i) => ({
+          id: 'oi-' + Math.random().toString(36).slice(2, 9),
+          dailyMenuItemId: i.dailyMenuItemId,
+          itemName: i.itemName,
+          quantity: i.quantity,
+          price: i.price,
+          total: i.price * i.quantity,
+        }));
+
+        const totalAmount = items.reduce((sum, i) => sum + i.total, 0);
+
         const order: Order = {
           id: 'ord-' + Date.now(),
           orderNumber: 'KRCL-' + String(Date.now()).slice(-6),
@@ -30,14 +40,7 @@ export class OrderService {
           paymentMode: request.paymentMode,
           paymentStatus: request.paymentMode === 'ONLINE' ? 'PAID' : 'PENDING',
           totalAmount,
-          items: request.items.map((i) => ({
-            id: 'oi-' + Math.random().toString(36).slice(2, 9),
-            dailyMenuItemId: i.dailyMenuItemId,
-            itemName: 'Item',
-            quantity: i.quantity,
-            price: 0,
-            total: 0,
-          })),
+          items,
           createdAt: new Date().toISOString(),
           notes: request.notes,
         };
@@ -76,11 +79,6 @@ export class OrderService {
     );
   }
 
-  private calculateTotal(request: PlaceOrderRequest): number {
-    // Mock: real me menu se price aayega
-    return request.items.reduce((sum, i) => sum + i.quantity * 30, 0);
-  }
-
   private loadMockOrders(): void {
     const today = new Date().toISOString().split('T')[0];
     const now = new Date();
@@ -89,7 +87,6 @@ export class OrderService {
     const t3 = new Date(now.getTime() - 5 * 60000).toISOString();
 
     const mock: Order[] = [
-      // Floor 6 — delivery staff ke assigned floors me
       {
         id: 'ord-demo-1',
         orderNumber: 'KRCL-100001',
