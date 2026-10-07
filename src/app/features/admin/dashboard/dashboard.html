@@ -4,10 +4,11 @@
       <h2>⚙️ Admin Dashboard</h2>
       <small>{{ user()?.name }} • {{ user()?.role }}</small>
     </div>
-    <div class="header-actions">
-      <button class="nav-btn" (click)="goToCanteen()">🍽️ Canteen</button>
-      <button class="logout-btn" (click)="logout()">Logout</button>
-    </div>
+   <div class="header-actions">
+  <button class="nav-btn" (click)="goToReports()">📊 Reports</button>
+  <button class="nav-btn" (click)="goToCanteen()">🍽️ Canteen</button>
+  <button class="logout-btn" (click)="logout()">Logout</button>
+</div>
   </header>
 
   @if (successMessage()) {

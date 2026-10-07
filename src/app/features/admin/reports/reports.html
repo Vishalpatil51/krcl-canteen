@@ -1,0 +1,172 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>📊 Reports & Analytics</h2>
+      <small>{{ user()?.name }} • {{ user()?.role }}</small>
+    </div>
+    <div class="header-actions">
+      <button class="nav-btn" (click)="goToAdmin()">⚙️ Admin</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="tabs-bar">
+    @for (p of periods; track p.key) {
+      <button
+        class="tab"
+        [class.active]="activePeriod() === p.key"
+        (click)="setPeriod(p.key)"
+      >
+        {{ p.label }}
+      </button>
+    }
+  </div>
+
+  <main class="content">
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="sum-card primary">
+        <div class="sc-icon">📦</div>
+        <div class="sc-label">Total Orders</div>
+        <div class="sc-value">{{ summary.totalOrders }}</div>
+      </div>
+      <div class="sum-card success">
+        <div class="sc-icon">💰</div>
+        <div class="sc-label">Revenue</div>
+        <div class="sc-value">₹{{ summary.totalRevenue }}</div>
+      </div>
+      <div class="sum-card info">
+        <div class="sc-icon">🎉</div>
+        <div class="sc-label">Delivered</div>
+        <div class="sc-value">{{ summary.deliveredCount }}</div>
+      </div>
+      <div class="sum-card warning">
+        <div class="sc-icon">📈</div>
+        <div class="sc-label">Avg Order</div>
+        <div class="sc-value">₹{{ summary.avgOrderValue }}</div>
+      </div>
+      <div class="sum-card danger">
+        <div class="sc-icon">❌</div>
+        <div class="sc-label">Cancelled</div>
+        <div class="sc-value">{{ summary.cancelledCount }}</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Top Items -->
+      <div class="section-card">
+        <h3>🏆 Top Selling Items</h3>
+        @if (topItems.length === 0) {
+          <p class="empty-text">No data for this period</p>
+        } @else {
+          <div class="items-list">
+            @for (item of topItems; track item.name; let i = $index) {
+              <div class="item-row">
+                <div class="rank">{{ i + 1 }}</div>
+                <div class="item-info">
+                  <div class="item-name">{{ item.name }}</div>
+                  <div class="item-sub">{{ item.qty }} sold • ₹{{ item.revenue }}</div>
+                </div>
+                <div class="item-bar-wrapper">
+                  <div
+                    class="item-bar"
+                    [style.width.%]="(item.qty / topItems[0].qty) * 100"
+                  ></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Orders by Floor -->
+      <div class="section-card">
+        <h3>🏢 Orders by Floor</h3>
+        @if (ordersByFloor.length === 0) {
+          <p class="empty-text">No data for this period</p>
+        } @else {
+          <div class="floor-list">
+            @for (f of ordersByFloor; track f.floor) {
+              <div class="floor-row">
+                <span class="floor-badge">Floor {{ f.floor }}</span>
+                <div class="floor-bar-wrapper">
+                  <div
+                    class="floor-bar"
+                    [style.width.%]="(f.count / ordersByFloor[0].count) * 100"
+                  ></div>
+                </div>
+                <div class="floor-stats">
+                  <strong>{{ f.count }}</strong>
+                  <span>₹{{ f.revenue }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Order Status -->
+      <div class="section-card">
+        <h3>📋 Order Status Breakdown</h3>
+        @if (statusBreakdown.length === 0) {
+          <p class="empty-text">No orders</p>
+        } @else {
+          <div class="status-list">
+            @for (s of statusBreakdown; track s.status) {
+              <div class="status-row">
+                <span class="status-dot" [style.background]="s.color"></span>
+                <span class="status-name">{{ s.status }}</span>
+                <span class="status-count">{{ s.count }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Distribution -->
+      <div class="section-card">
+        <h3>🍽️ Distribution</h3>
+
+        <div class="dist-group">
+          <label>Meal Type</label>
+          <div class="dist-bar">
+            @if (mealSplit.breakfast + mealSplit.lunch > 0) {
+              <div
+                class="dist-breakfast"
+                [style.width.%]="(mealSplit.breakfast / (mealSplit.breakfast + mealSplit.lunch)) * 100"
+              ></div>
+              <div
+                class="dist-lunch"
+                [style.width.%]="(mealSplit.lunch / (mealSplit.breakfast + mealSplit.lunch)) * 100"
+              ></div>
+            }
+          </div>
+          <div class="dist-legend">
+            <span><span class="dot" style="background:#ff9800"></span> Breakfast {{ mealSplit.breakfast }}</span>
+            <span><span class="dot" style="background:#2196f3"></span> Lunch {{ mealSplit.lunch }}</span>
+          </div>
+        </div>
+
+        <div class="dist-group">
+          <label>Payment Mode</label>
+          <div class="payment-split">
+            <div class="ps-item">
+              <div class="ps-count">{{ paymentSplit.online }}</div>
+              <div class="ps-label">💳 Online</div>
+            </div>
+            <div class="ps-item">
+              <div class="ps-count">{{ paymentSplit.cash }}</div>
+              <div class="ps-label">💵 Cash</div>
+            </div>
+            <div class="ps-item pending">
+              <div class="ps-count">{{ paymentSplit.pending }}</div>
+              <div class="ps-label">⏳ Pending</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

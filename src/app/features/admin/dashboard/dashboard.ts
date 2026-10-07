@@ -160,6 +160,9 @@ export class AdminDashboard {
   goToCanteen(): void {
     this.router.navigate(['/canteen']);
   }
+goToReports(): void {
+  this.router.navigate(['/admin/reports']);
+}
 
   logout(): void {
     this.auth.logout();
