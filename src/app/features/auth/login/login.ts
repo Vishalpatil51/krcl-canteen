@@ -76,8 +76,10 @@ export class Login {
         this.router.navigate(['/admin']);
         break;
       case 'CANTEEN_ADMIN':
-      case 'COUNTER_STAFF':
         this.router.navigate(['/canteen']);
+        break;
+      case 'COUNTER_STAFF':
+        this.router.navigate(['/counter']);
         break;
       case 'KITCHEN_STAFF':
         this.router.navigate(['/kitchen']);

@@ -64,5 +64,13 @@ export const routes: Routes = [
         (m) => m.AdminDashboard
       ),
   },
+  {
+    path: 'counter',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/counter/dashboard/dashboard').then(
+        (m) => m.CounterDashboard
+      ),
+  },
   { path: '**', redirectTo: 'login' },
 ];
