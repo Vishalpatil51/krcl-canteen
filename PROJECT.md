@@ -5,15 +5,15 @@ Konkan Railway (KRCL) canteen ke liye web-based order management system.
 Employees 3rd-8th floor pe kaam karte hain, canteen 3rd floor ke side me hai.
 Employees mobile se order karenge, canteen staff prepare karega, delivery staff floor-wise deliver karega.
 
-Total employees: ~5,233
-Peak hours: Breakfast 8-10 AM, Lunch 12:30-2:30 PM
-Canteen staff: 4-5 + chefs + 1 counter person
-Floors: 3rd to 8th (KRCL ka 3rd floor se upar)
+- Total employees: ~5,233
+- Peak hours: Breakfast 8-10 AM, Lunch 12:30-2:30 PM
+- Canteen staff: 4-5 + chefs + 1 counter person
+- Floors: 3rd to 8th (KRCL ka 3rd floor se upar)
 
 ## Tech Stack
 - Frontend: Angular 22 (standalone components, signals, new control flow @if/@for)
-- Backend: Java 11 + Spring Boot 2.7 (planned, abhi mock hai)
-- Database: PostgreSQL (planned)
+- Backend: Java 11 + Spring Boot 2.7 (PLANNED — abhi mock hai)
+- Database: PostgreSQL (PLANNED)
 - Node: 24.21.0 (portable, F:\New_node_24\node-v24.21.0-win-x64)
 - npm: 11.19.0
 - Angular CLI: 22.2.1
@@ -33,12 +33,12 @@ set PATH=F:\New_node_24\node-v24.21.0-win-x64;%PATH%
 Purana Node 10 system me alag installed hai, purane projects ke liye safe hai.
 
 ## Roles
-- SUPER_ADMIN: sab kuch
-- CANTEEN_ADMIN: menu, orders, reports
-- COUNTER_STAFF: payment verify
-- KITCHEN_STAFF: order prepare
-- DELIVERY_STAFF: floor-wise delivery
-- EMPLOYEE: order place kare
+- SUPER_ADMIN: sab kuch (default: /admin)
+- CANTEEN_ADMIN: menu, orders, reports (default: /canteen)
+- COUNTER_STAFF: payment verify + daily report (default: /counter)
+- KITCHEN_STAFF: order prepare (default: /kitchen)
+- DELIVERY_STAFF: floor-wise delivery (default: /delivery)
+- EMPLOYEE: order place kare (default: /employee)
 
 ## Demo Logins (OTP: 123456)
 - 9999999999 → Super Admin
@@ -48,31 +48,37 @@ Purana Node 10 system me alag installed hai, purane projects ke liye safe hai.
 - 5555555555 → Delivery Staff A (Floors 5, 6)
 - Any other 10-digit (5-9 se start) → Employee (Floor 6)
 
-## Current Status (DONE)
-- [x] Login with mobile OTP (mock)
-- [x] Employee Dashboard (menu, cart, order place with real item names/prices)
-- [x] Employee Order History (/employee/orders with All/Active/Past filters)
-- [x] Canteen Dashboard (order queue, status advance, mark paid)
-- [x] Kitchen Dashboard (start cooking, mark ready)
-- [x] Delivery Dashboard (pickup, collect cash, mark delivered)
+## Features DONE (All Frontend)
+- [x] Login with mobile OTP (mock, OTP = 123456)
+- [x] Role-based redirect after login
+- [x] Auth guard (protected routes)
+- [x] Employee Dashboard (menu tabs, cart, order place with real items/prices)
+- [x] Employee Order History (/employee/orders with All/Active/Past filter)
+- [x] Canteen Dashboard (order queue, status advance, mark paid, cancel)
+- [x] Canteen Menu Management (/canteen/menu — edit price/qty/stock/add/remove)
+- [x] Kitchen Dashboard (ACCEPTED → PREPARING → READY)
+- [x] Delivery Dashboard (READY → OUT_FOR_DELIVERY → DELIVERED + cash collect)
+- [x] Admin Dashboard (/admin — users, floors, staff-floor assignments)
+- [x] Counter Dashboard (/counter — cash pending, paid, daily report)
+- [x] Admin Reports (/admin/reports — today/week/month/all time analytics)
+- [x] PWA setup (mobile install + offline caching + service worker)
 - [x] Full workflow: PLACED → ACCEPTED → PREPARING → READY → OUT_FOR_DELIVERY → DELIVERED
-- [x] GitHub repo setup + initial push
+- [x] GitHub repo setup + push
 
-## TODO (Remaining)
-- [ ] Admin Dashboard (users add, floors manage, delivery staff assignment)
-- [ ] Counter Staff Dashboard (cash verify, daily report)
-- [ ] Menu Management (canteen admin ke liye - items add/remove/price/quantity)
-- [ ] Reports (daily/monthly sales)
-- [ ] Monthly ledger for PAY_LATER
+## Features TODO (Remaining)
 - [ ] Backend Spring Boot API
 - [ ] PostgreSQL database
 - [ ] Real OTP integration (MSG91 / Firebase)
+- [ ] JWT authentication
 - [ ] Razorpay integration
 - [ ] FCM push notifications
-- [ ] PWA setup (Add to Home Screen)
+- [ ] Real-time sync (multi-user)
+- [ ] Order cancel by employee (before ACCEPTED)
+- [ ] Monthly ledger for PAY_LATER
+- [ ] Reports export to PDF/Excel
+- [ ] WhatsApp/SMS alerts
 - [ ] Android app (Capacitor wrapper)
-- [ ] Order cancellation by employee
-- [ ] Rating/feedback
+- [ ] Multi-canteen support (future)
 
 ## Folder Structure
 src/app/
@@ -84,24 +90,44 @@ src/app/
 │   │   ├── order.model.ts
 │   │   └── index.ts
 │   ├── services/
-│   │   ├── auth.service.ts    (login/OTP, mock user)
-│   │   ├── menu.service.ts    (daily menus, mock data)
-│   │   ├── order.service.ts   (orders CRUD, mock data)
-│   │   └── cart.service.ts    (cart state with signals)
+│   │   ├── auth.service.ts    (login/OTP, mock user by mobile)
+│   │   ├── menu.service.ts    (daily menus + edit/add/remove)
+│   │   ├── order.service.ts   (orders CRUD + status update, mock data)
+│   │   ├── cart.service.ts    (cart state with signals)
+│   │   └── admin.service.ts   (users, floors, assignments — mock)
 │   └── guards/
 │       ├── auth.guard.ts
 │       └── role.guard.ts
 ├── shared/
-│   └── components/            (empty)
+│   └── components/            (empty, future)
 └── features/
     ├── auth/login/            ✅
     ├── employee/
     │   ├── dashboard/         ✅
     │   └── order-history/     ✅
-    ├── canteen/dashboard/     ✅
+    ├── canteen/
+    │   ├── dashboard/         ✅
+    │   └── menu-management/   ✅
     ├── kitchen/dashboard/     ✅
     ├── delivery/dashboard/    ✅
-    └── admin/                 (pending)
+    ├── counter/dashboard/     ✅
+    ├── admin/
+    │   ├── dashboard/         ✅
+    │   └── reports/           ✅
+    └── (PWA assets in public/)
+
+## Routes
+- /login              → Login (OTP)
+- /employee           → Employee Dashboard (menu + cart)
+- /employee/orders    → Employee Order History
+- /canteen            → Canteen Dashboard
+- /canteen/menu       → Menu Management
+- /kitchen            → Kitchen Dashboard
+- /delivery           → Delivery Dashboard
+- /counter            → Counter Staff Dashboard
+- /admin              → Admin Dashboard (users/floors/assignments)
+- /admin/reports      → Reports & Analytics
+- /**                 → Redirect to /login
 
 ## Order Status Flow
 PLACED → ACCEPTED → PREPARING → READY → OUT_FOR_DELIVERY → DELIVERED
@@ -109,7 +135,7 @@ Any → CANCELLED
 
 ## Payment Modes
 - ONLINE: order place karte waqt pay (mock me instantly PAID)
-- CASH: delivery pe cash collect (COD_PENDING → PAID)
+- CASH: delivery pe cash collect (COD_PENDING → PAID via Counter/Delivery)
 - PAY_LATER: ledger (future)
 
 ## Payment Status
@@ -118,7 +144,7 @@ Any → CANCELLED
 - COD_PENDING: cash on delivery, waiting
 - FAILED: online payment fail
 
-## Menu Structure
+## Menu Structure (Demo)
 Breakfast (8:00 AM - 10:00 AM):
 - Poha ₹30, Upma ₹30, Idli ₹40, Tea ₹10, Coffee ₹15
 
@@ -131,68 +157,123 @@ Delivery Staff A → Floors 5, 6
 (Baaki staff backend aane ke baad configure honge)
 
 ## Mock Data Location
-- src/app/core/services/auth.service.ts → getMockUser() (mobile se role decide)
+- src/app/core/services/auth.service.ts → getMockUser()
 - src/app/core/services/menu.service.ts → loadMockMenus()
 - src/app/core/services/order.service.ts → loadMockOrders()
+- src/app/core/services/admin.service.ts → loadMockData()
 
-## How to Run
+## How to Run (Development)
 cd /d F:\krcl-canteen\krcl-canteen-frontend
 set PATH=F:\New_node_24\node-v24.21.0-win-x64;%PATH%
 ng serve
 Browser: http://localhost:4200
 
-## Routes
-- /login              → Login page
-- /employee           → Employee dashboard (menu + cart)
-- /employee/orders    → Employee order history
-- /canteen            → Canteen admin dashboard
-- /kitchen            → Kitchen dashboard
-- /delivery           → Delivery staff dashboard
-- /**                 → Redirect to /login
+## How to Run (Production / PWA Test)
+ng build
+npx http-server dist/krcl-canteen-frontend/browser -p 5500 -c-1
+Browser: http://localhost:5500
+Mobile: http://<laptop-ip>:5500 → Chrome menu → "Install app"
+
+## PWA Info
+- Service Worker: ngsw-worker.js (auto-registered)
+- Manifest: public/manifest.webmanifest
+- Icons: public/icons/ (auto-generated by Angular)
+- Display: standalone (full screen app)
+- Offline: works via cache
+- Install: Add to Home Screen
 
 ## Testing Flow (End-to-End)
-1. Login as employee (1234567890) → place order (Poha 2, Tea 1 = ₹70)
-2. Logout → Login as canteen (8888888888) → Mark ACCEPTED
-3. Logout → Login as kitchen (6666666666) → Start Cooking → Mark Ready
-4. Logout → Login as delivery (5555555555) → Pick Up → Mark Delivered
-5. Employee login → My Orders → check status DELIVERED
+1. Login employee (1234567890) → place order (Poha 2, Tea 1 = ₹70)
+2. Login canteen (8888888888) → Mark ACCEPTED
+3. Login kitchen (6666666666) → Start Cooking → Mark Ready
+4. Login delivery (5555555555) → Pick Up → Mark Delivered
+5. Login counter (7777777777) → verify cash, check daily report
+6. Login employee → My Orders → check status DELIVERED
+7. Login admin (9999999999) → Reports → check analytics
 
-## Next Steps for Development
-1. Admin Dashboard (users/floors/staff assignment)
-2. Counter Staff Dashboard
-3. Menu Management page
-4. Spring Boot backend setup
-5. REST API integration (replace mock services)
-6. Real OTP + Razorpay + FCM
-7. PWA setup + Android app
+## Next Steps (Priority Order)
+1. **Backend Spring Boot setup** ← NEXT SESSION START HERE
+2. JWT auth + real OTP (MSG91)
+3. REST APIs for orders, menu, users
+4. Angular services ko mock se real API pe switch karna
+5. Razorpay integration
+6. FCM push notifications
+7. Real-time order updates (WebSocket)
+8. Reports export (PDF/Excel)
+9. Android app (Capacitor) → Play Store
 
 ## Backend Plan (Java 11 + Spring Boot 2.7)
 Location: F:\krcl-canteen\krcl-canteen-backend
-Database: PostgreSQL
-Entities: User, Floor, MenuItem, DailyMenu, DailyMenuItem, Order, OrderItem, Payment, Ledger
 
-API endpoints planned:
-- POST   /api/auth/send-otp
-- POST   /api/auth/verify-otp
-- GET    /api/menu/today
-- GET    /api/menu/today/{mealType}
-- POST   /api/orders
-- GET    /api/orders/my
-- GET    /api/orders/floor/{floorNumber}
-- GET    /api/orders/status/{status}
-- PATCH  /api/orders/{id}/status
-- PATCH  /api/orders/{id}/payment
+### Dependencies
+- Spring Boot 2.7.x
+- Spring Web
+- Spring Data JPA
+- Spring Security + JWT (jjwt)
+- PostgreSQL Driver
+- Lombok
+- Validation
+- Razorpay Java SDK (later)
+- Firebase Admin SDK (later)
+
+### Database
+PostgreSQL — database name: krcl_canteen
+
+### Entities
+- User (id, name, employeeId, mobile, role, floorId, isActive, fcmToken, createdAt)
+- Floor (id, floorNumber, name, isActive)
+- MenuItem (id, name, category, unit, defaultPrice, isActive)
+- DailyMenu (id, date, mealType, startTime, endTime, cutoffTime, isActive)
+- DailyMenuItem (id, dailyMenuId, menuItemId, price, availableQty, soldQty, isOutOfStock)
+- Order (id, orderNumber, userId, floorId, assignedStaffId, mealType, orderDate, status, paymentMode, paymentStatus, totalAmount, createdAt, deliveredAt, notes)
+- OrderItem (id, orderId, dailyMenuItemId, itemName, quantity, price, total)
+- Payment (id, orderId, amount, mode, status, razorpayTxnId, paidAt)
+- StaffFloorAssignment (id, staffId, floorId)
+- Ledger (id, userId, amount, type, orderId, settled) — future
+
+### REST API Endpoints (Plan)
+Auth:
+- POST   /api/auth/send-otp          { mobile }
+- POST   /api/auth/verify-otp        { mobile, otp } → { token, user }
+- GET    /api/auth/me                → current user
+
+Menu:
+- GET    /api/menu/today             → both meals
+- GET    /api/menu/today/{mealType}  → breakfast/lunch
+- POST   /api/menu/items             (CANTEEN_ADMIN)
+- PATCH  /api/menu/items/{id}
+- DELETE /api/menu/items/{id}
+
+Orders:
+- POST   /api/orders                 (EMPLOYEE) → place
+- GET    /api/orders/my              → my orders
+- GET    /api/orders/floor/{n}       (DELIVERY_STAFF)
+- GET    /api/orders/status/{s}      (CANTEEN/KITCHEN/DELIVERY)
+- GET    /api/orders/all             (ADMIN)
+- PATCH  /api/orders/{id}/status     { status }
+- PATCH  /api/orders/{id}/payment    { paymentStatus }
+
+Admin:
 - GET    /api/users
 - POST   /api/users
+- PATCH  /api/users/{id}
+- DELETE /api/users/{id}
 - GET    /api/floors
+- POST   /api/floors
+- GET    /api/staff-floor-assignments
 - POST   /api/staff-floor-assignments
+- DELETE /api/staff-floor-assignments/{id}
 
-## Notes
-- Sabhi services abhi mock data use kar rahi hain
-- API integration ke waqt services me methods already API-ready hain
-- Har service me `mock` word search karo, wahan replace karna hai
-- Cart service signals use karti hai (Angular 22 ka modern state management)
-- Har feature ke baad `git add . && git commit -m "..."` zaroor karo
+Reports:
+- GET    /api/reports/summary?period=TODAY|WEEK|MONTH|ALL
+- GET    /api/reports/top-items
+- GET    /api/reports/orders-by-floor
+
+### Security
+- JWT token in Authorization header (Bearer)
+- Role-based access control (@PreAuthorize)
+- OTP valid 5 min, 3 attempts max, 15 min block
+- CORS configured for Angular origin
 
 ## Git Commands (Common)
 cd /d F:\krcl-canteen\krcl-canteen-frontend
@@ -202,6 +283,23 @@ git commit -m "message"
 git push
 
 ## Known Issues / Notes
-- Demo me items mein "Item" naam aata tha — fix kar diya (real names aa rahe hain)
-- Login validation 5-9 se start hone wale numbers accept karta hai (demo purpose)
-- Order ID time-based generate hota hai, mock me dummy data bhi hai
+- Sabhi services abhi mock data use kar rahi hain
+- API integration ke waqt services ke andar `mock` word search karo
+- Cart service signals use karti hai (Angular 22 modern state)
+- Har feature ke baad git commit karo
+- SCSS bundle size warnings aati hain build me (harmless)
+- PWA sirf production build (`ng build`) me activate hoti hai, `ng serve` me nahi
+
+## Session Progress Log
+- Session 1: Setup (Node 24 portable, Angular CLI 22) + Login + Employee dashboard + Cart + Canteen dashboard + Delivery dashboard + PROJECT.md
+- Session 2: Kitchen dashboard + Order History + Menu Management + Admin dashboard + Counter dashboard + Reports + PWA + GitHub push
+
+## Next Session Start Here
+Naya session start karte waqt ye paste karo:
+
+"Mera KRCL Canteen project F:\krcl-canteen\krcl-canteen-frontend hai.
+PROJECT.md padho, GitHub pe push ho chuka hai (github.com/Vishalpatil51/krcl-canteen).
+Frontend complete hai - saare roles ke dashboards ban chuke hain.
+Ab Backend (Java 11 + Spring Boot 2.7 + PostgreSQL) banana hai.
+Backend ke liye naya folder: F:\krcl-canteen\krcl-canteen-backend
+Spring Initializr se start karo, details PROJECT.md me hain."
