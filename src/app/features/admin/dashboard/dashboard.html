@@ -1,0 +1,234 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>⚙️ Admin Dashboard</h2>
+      <small>{{ user()?.name }} • {{ user()?.role }}</small>
+    </div>
+    <div class="header-actions">
+      <button class="nav-btn" (click)="goToCanteen()">🍽️ Canteen</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="banner success">✓ {{ successMessage() }}</div>
+  }
+
+  <div class="tabs-bar">
+    <button class="tab" [class.active]="activeTab() === 'USERS'" (click)="setTab('USERS')">
+      👥 Users <span class="count">{{ users().length }}</span>
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'FLOORS'" (click)="setTab('FLOORS')">
+      🏢 Floors <span class="count">{{ floors().length }}</span>
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'ASSIGNMENTS'" (click)="setTab('ASSIGNMENTS')">
+      🚶 Staff Assignments <span class="count">{{ assignments().length }}</span>
+    </button>
+  </div>
+
+  <main class="content">
+    <!-- USERS TAB -->
+    @if (activeTab() === 'USERS') {
+      <div class="tab-header">
+        <h3>All Users</h3>
+        <button class="btn-primary" (click)="openUserForm()">➕ Add User</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>Role</th>
+              <th>Floor</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of users(); track u.id) {
+              <tr [class.inactive]="!u.isActive">
+                <td>
+                  <strong>{{ u.name }}</strong>
+                  @if (u.employeeId) {
+                    <div class="small-text">{{ u.employeeId }}</div>
+                  }
+                </td>
+                <td>{{ u.mobile }}</td>
+                <td>
+                  <span class="role-badge" [class]="'role-' + u.role.toLowerCase()">
+                    {{ u.role }}
+                  </span>
+                </td>
+                <td>{{ u.floorNumber ? 'Floor ' + u.floorNumber : '-' }}</td>
+                <td>
+                  <span class="status-dot" [class.active]="u.isActive" [class.inactive]="!u.isActive"></span>
+                  {{ u.isActive ? 'Active' : 'Inactive' }}
+                </td>
+                <td>
+                  <button class="mini-btn" (click)="toggleActive(u.id)" [title]="u.isActive ? 'Deactivate' : 'Activate'">
+                    {{ u.isActive ? '🚫' : '✅' }}
+                  </button>
+                  <button class="mini-btn delete" (click)="deleteUser(u.id)" title="Delete">🗑️</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- FLOORS TAB -->
+    @if (activeTab() === 'FLOORS') {
+      <div class="tab-header">
+        <h3>Building Floors</h3>
+        <button class="btn-primary" (click)="openFloorForm()">➕ Add Floor</button>
+      </div>
+
+      <div class="floors-grid">
+        @for (f of floors(); track f.id) {
+          <div class="floor-card" [class.inactive]="!f.isActive">
+            <div class="floor-number">{{ f.floorNumber }}</div>
+            <div class="floor-name">{{ f.name }}</div>
+            <div class="floor-status">
+              <span class="status-dot" [class.active]="f.isActive" [class.inactive]="!f.isActive"></span>
+              {{ f.isActive ? 'Active' : 'Inactive' }}
+            </div>
+            <button class="mini-btn" (click)="toggleFloor(f.id)">
+              {{ f.isActive ? '🚫 Deactivate' : '✅ Activate' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ASSIGNMENTS TAB -->
+    @if (activeTab() === 'ASSIGNMENTS') {
+      <div class="assignment-form">
+        <h3>Assign Floor to Delivery Staff</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Select Staff</label>
+            <select [ngModel]="selectedStaffId()" (ngModelChange)="selectedStaffId.set($event)">
+              <option value="">-- Select --</option>
+              @for (s of getDeliveryStaff(); track s.id) {
+                <option [value]="s.id">{{ s.name }} ({{ s.mobile }})</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Select Floor</label>
+            <select [ngModel]="selectedFloorId()" (ngModelChange)="selectedFloorId.set($event)">
+              <option value="">-- Select --</option>
+              @for (f of floors(); track f.id) {
+                <option [value]="f.id">{{ f.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn-primary" (click)="addAssignment()">Assign</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <h3>Current Assignments</h3>
+      </div>
+
+      @if (assignments().length === 0) {
+        <p class="empty-text">No assignments yet</p>
+      } @else {
+        <div class="assignments-list">
+          @for (a of assignments(); track a.id) {
+            <div class="assignment-card">
+              <div class="assignment-info">
+                <span class="staff-name">🚶 {{ a.staffName }}</span>
+                <span class="arrow">→</span>
+                <span class="floor-badge">Floor {{ a.floorNumber }}</span>
+              </div>
+              <button class="mini-btn delete" (click)="removeAssignment(a.id)">🗑️</button>
+            </div>
+          }
+        </div>
+      }
+    }
+  </main>
+
+  <!-- ADD USER MODAL -->
+  @if (showUserForm()) {
+    <div class="overlay" (click)="closeUserForm()"></div>
+    <div class="modal">
+      <h3>Add New User</h3>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="e.g. Ramesh Kumar"
+          [ngModel]="newName()" (ngModelChange)="newName.set($event)" />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" maxlength="10" placeholder="10-digit mobile"
+          [ngModel]="newMobile()" (ngModelChange)="newMobile.set($event)" />
+      </div>
+
+      <div class="form-group">
+        <label>Role</label>
+        <select [ngModel]="newRole()" (ngModelChange)="newRole.set($event)">
+          @for (r of roleOptions; track r) {
+            <option [value]="r">{{ r }}</option>
+          }
+        </select>
+      </div>
+
+      @if (newRole() === 'EMPLOYEE') {
+        <div class="form-row">
+          <div class="form-group">
+            <label>Employee ID</label>
+            <input type="text" placeholder="e.g. KRCL001"
+              [ngModel]="newEmployeeId()" (ngModelChange)="newEmployeeId.set($event)" />
+          </div>
+          <div class="form-group">
+            <label>Floor</label>
+            <select [ngModel]="newFloorNumber()" (ngModelChange)="newFloorNumber.set(+$event)">
+              <option [value]="null">-- Select --</option>
+              @for (f of floors(); track f.id) {
+                <option [value]="f.floorNumber">{{ f.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeUserForm()">Cancel</button>
+        <button class="btn-primary" (click)="addUser()">Add User</button>
+      </div>
+    </div>
+  }
+
+  <!-- ADD FLOOR MODAL -->
+  @if (showFloorForm()) {
+    <div class="overlay" (click)="closeFloorForm()"></div>
+    <div class="modal">
+      <h3>Add Floor</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Floor Number</label>
+          <input type="number" [ngModel]="newFloorNum()" (ngModelChange)="newFloorNum.set(+$event)" />
+        </div>
+        <div class="form-group">
+          <label>Floor Name (optional)</label>
+          <input type="text" placeholder="e.g. Canteen Floor"
+            [ngModel]="newFloorName()" (ngModelChange)="newFloorName.set($event)" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeFloorForm()">Cancel</button>
+        <button class="btn-primary" (click)="addFloor()">Add Floor</button>
+      </div>
+    </div>
+  }
+</div>

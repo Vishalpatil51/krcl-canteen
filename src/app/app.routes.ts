@@ -56,5 +56,13 @@ export const routes: Routes = [
         (m) => m.DeliveryDashboard
       ),
   },
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/dashboard/dashboard').then(
+        (m) => m.AdminDashboard
+      ),
+  },
   { path: '**', redirectTo: 'login' },
 ];

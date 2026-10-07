@@ -26,7 +26,6 @@ export class Login {
     this.error.set('');
     const m = this.mobile().trim();
 
-    // Demo: 5-9 se start hone wale 10-digit numbers allow
     if (!/^[5-9]\d{9}$/.test(m)) {
       this.error.set('Enter valid 10-digit mobile number');
       return;
@@ -73,8 +72,11 @@ export class Login {
 
   private redirectByRole(role: string): void {
     switch (role) {
-      case 'CANTEEN_ADMIN':
       case 'SUPER_ADMIN':
+        this.router.navigate(['/admin']);
+        break;
+      case 'CANTEEN_ADMIN':
+      case 'COUNTER_STAFF':
         this.router.navigate(['/canteen']);
         break;
       case 'KITCHEN_STAFF':
