@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -9,4 +10,16 @@ body {
   font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
   background: #f4f6f9;
   color: #333;
+  overscroll-behavior-y: contain;
+}
+
+/* Prevent text selection on mobile for UI buttons */
+button {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
