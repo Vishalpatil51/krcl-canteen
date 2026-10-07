@@ -1,0 +1,105 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>🚶 Delivery Dashboard</h2>
+      <small>
+        {{ user()?.name }} • Floors:
+        @for (f of assignedFloors; track f) {
+          <span class="floor-chip">{{ f }}</span>
+        }
+      </small>
+    </div>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </header>
+
+  <div class="tabs-bar">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="tab"
+        [class.active]="activeTab() === tab.key"
+        (click)="setTab(tab.key)"
+      >
+        <span>{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
+        <span class="count">{{ countByTab(tab.key) }}</span>
+      </button>
+    }
+  </div>
+
+  <main class="content">
+    @if (orders.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No orders in this category</p>
+      </div>
+    } @else {
+      <div class="orders-grid">
+        @for (order of orders; track order.id) {
+          <div class="order-card" [class]="'status-' + order.status.toLowerCase()">
+            <div class="order-header">
+              <div>
+                <div class="order-number">#{{ order.orderNumber }}</div>
+                <div class="order-time">{{ formatTime(order.createdAt) }}</div>
+              </div>
+              <span class="floor-badge">Floor {{ order.floorNumber }}</span>
+            </div>
+
+            <div class="employee-info">
+              <div class="avatar">{{ order.userName.charAt(0) }}</div>
+              <div>
+                <div class="emp-name">{{ order.userName }}</div>
+                <div class="emp-meal">{{ order.mealType }}</div>
+              </div>
+            </div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="item-row">
+                  <span>{{ item.itemName }}</span>
+                  <span class="qty">×{{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-footer">
+              <div class="total">
+                <span>Collect</span>
+                <strong>₹{{ order.totalAmount }}</strong>
+              </div>
+              @if (order.paymentMode === 'CASH') {
+                @if (order.paymentStatus === 'PAID') {
+                  <span class="payment-badge paid">✓ Cash Collected</span>
+                } @else {
+                  <span class="payment-badge pending">💵 Cash on Delivery</span>
+                }
+              } @else {
+                <span class="payment-badge paid">✓ Paid Online</span>
+              }
+            </div>
+
+            <div class="order-actions">
+              @if (order.status === 'READY') {
+                <button class="action-btn primary" (click)="pickUp(order)">
+                  🚶 Pick Up & Deliver
+                </button>
+              }
+              @if (order.status === 'OUT_FOR_DELIVERY') {
+                @if (order.paymentMode === 'CASH' && order.paymentStatus !== 'PAID') {
+                  <button class="action-btn cash" (click)="collectCash(order)">
+                    💵 Collected ₹{{ order.totalAmount }}
+                  </button>
+                }
+                <button class="action-btn success" (click)="markDelivered(order)">
+                  ✓ Mark Delivered
+                </button>
+              }
+              @if (order.status === 'DELIVERED') {
+                <div class="delivered-badge">🎉 Delivered</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

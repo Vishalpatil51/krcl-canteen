@@ -1,0 +1,103 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>🍽️ Canteen Dashboard</h2>
+      <small>{{ user()?.name }} • {{ user()?.role }}</small>
+    </div>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </header>
+
+  <div class="tabs-bar">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="tab"
+        [class.active]="activeTab() === tab.key"
+        (click)="setTab(tab.key)"
+      >
+        <span>{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
+        @if (tab.key !== 'ALL') {
+          <span class="count">{{ countByStatus($any(tab.key)) }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  <main class="content">
+    @if (orders.length === 0) {
+      <div class="empty-state">
+        <p>No orders in this category</p>
+      </div>
+    } @else {
+      <div class="orders-grid">
+        @for (order of orders; track order.id) {
+          <div class="order-card" [class]="'status-' + order.status.toLowerCase()">
+            <div class="order-header">
+              <div>
+                <div class="order-number">#{{ order.orderNumber }}</div>
+                <div class="order-time">{{ formatTime(order.createdAt) }}</div>
+              </div>
+              <span class="status-badge" [class]="'badge-' + order.status.toLowerCase()">
+                {{ order.status }}
+              </span>
+            </div>
+
+            <div class="order-info">
+              <div class="info-row">
+                <span class="label">Employee</span>
+                <span>{{ order.userName }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Floor</span>
+                <span class="floor-badge">Floor {{ order.floorNumber }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Meal</span>
+                <span>{{ order.mealType }}</span>
+              </div>
+            </div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="item-row">
+                  <span>{{ item.itemName }}</span>
+                  <span>×{{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-footer">
+              <div class="total">
+                <span>Total</span>
+                <strong>₹{{ order.totalAmount }}</strong>
+              </div>
+              <div class="payment">
+                <span
+                  class="payment-badge"
+                  [class.paid]="order.paymentStatus === 'PAID'"
+                  [class.pending]="order.paymentStatus !== 'PAID'"
+                >
+                  {{ order.paymentStatus }} • {{ order.paymentMode }}
+                </span>
+                @if (order.paymentStatus !== 'PAID' && order.paymentMode === 'CASH') {
+                  <button class="paid-btn" (click)="markPaid(order)">Mark Paid</button>
+                }
+              </div>
+            </div>
+
+            <div class="order-actions">
+              @if (order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
+                <button class="cancel-btn" (click)="cancel(order)">Cancel</button>
+                @if (nextStatus(order.status)) {
+                  <button class="advance-btn" (click)="advance(order)">
+                    Mark {{ nextStatus(order.status) }} →
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

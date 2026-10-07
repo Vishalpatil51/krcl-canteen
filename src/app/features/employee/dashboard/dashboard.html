@@ -1,0 +1,171 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div>
+      <h2>KRCL Canteen</h2>
+      <small>Welcome, {{ user()?.name }} (Floor {{ user()?.floorNumber ?? '-' }})</small>
+    </div>
+    <div class="header-actions">
+      <button class="cart-btn" (click)="openCart()">
+        🛒 Cart
+        @if (cart.totalItems() > 0) {
+          <span class="badge">{{ cart.totalItems() }}</span>
+        }
+      </button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="banner success">{{ successMessage() }}</div>
+  }
+
+  <main class="content">
+    <div class="meal-tabs">
+      <button
+        [class.active]="activeMeal() === 'BREAKFAST'"
+        (click)="setMeal('BREAKFAST')"
+      >
+        🍳 Breakfast (8:00 - 10:00 AM)
+      </button>
+      <button
+        [class.active]="activeMeal() === 'LUNCH'"
+        (click)="setMeal('LUNCH')"
+      >
+        🍛 Lunch (12:30 - 2:30 PM)
+      </button>
+    </div>
+
+    <section class="meal-card">
+      @if (currentMenu; as menu) {
+        <ul>
+          @for (item of menu.items; track item.id) {
+            <li>
+              <div class="item-info">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-price">₹{{ item.price }} / {{ item.unit }}</span>
+              </div>
+              <div class="item-action">
+                @if (cart.getQuantity(item.id) > 0) {
+                  <div class="qty-control">
+                    <button (click)="removeFromCart(item.id)">−</button>
+                    <span>{{ cart.getQuantity(item.id) }}</span>
+                    <button (click)="addToCart(item)">+</button>
+                  </div>
+                } @else {
+                  <button class="add-btn" (click)="addToCart(item)">Add</button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>Menu not available</p>
+      }
+    </section>
+  </main>
+
+  <!-- Cart Sidebar -->
+  @if (showCart()) {
+    <div class="overlay" (click)="closeCart()"></div>
+    <aside class="cart-panel">
+      <div class="cart-header">
+        <h3>Your Cart</h3>
+        <button class="close-btn" (click)="closeCart()">✕</button>
+      </div>
+
+      @if (cart.cart().length === 0) {
+        <p class="empty-cart">Cart is empty</p>
+      } @else {
+        <ul class="cart-items">
+          @for (c of cart.cart(); track c.item.id) {
+            <li>
+              <div>
+                <div class="cart-item-name">{{ c.item.name }}</div>
+                <div class="cart-item-price">₹{{ c.item.price }} × {{ c.quantity }}</div>
+              </div>
+              <div class="qty-control small">
+                <button (click)="removeFromCart(c.item.id)">−</button>
+                <span>{{ c.quantity }}</span>
+                <button (click)="addToCart(c.item)">+</button>
+              </div>
+            </li>
+          }
+        </ul>
+
+        <div class="cart-summary">
+          <div class="total-row">
+            <span>Total ({{ cart.totalItems() }} items)</span>
+            <strong>₹{{ cart.totalAmount() }}</strong>
+          </div>
+          <button class="checkout-btn" (click)="openCheckout()">
+            Proceed to Checkout →
+          </button>
+        </div>
+      }
+    </aside>
+  }
+
+  <!-- Checkout Modal -->
+  @if (showCheckout()) {
+    <div class="overlay" (click)="closeCheckout()"></div>
+    <div class="checkout-modal">
+      <h3>Confirm Order</h3>
+
+      <div class="checkout-summary">
+        <div class="row">
+          <span>Items</span>
+          <span>{{ cart.totalItems() }}</span>
+        </div>
+        <div class="row">
+          <span>Floor</span>
+          <span>{{ user()?.floorNumber }}</span>
+        </div>
+        <div class="row total">
+          <span>Total Amount</span>
+          <strong>₹{{ cart.totalAmount() }}</strong>
+        </div>
+      </div>
+
+      <div class="payment-section">
+        <label>Payment Mode</label>
+        <div class="payment-options">
+          <label class="radio-option">
+            <input
+              type="radio"
+              name="payment"
+              [value]="'ONLINE'"
+              [ngModel]="paymentMode()"
+              (ngModelChange)="paymentMode.set($event)"
+            />
+            <span>💳 Pay Online (UPI/Card)</span>
+          </label>
+          <label class="radio-option">
+            <input
+              type="radio"
+              name="payment"
+              [value]="'CASH'"
+              [ngModel]="paymentMode()"
+              (ngModelChange)="paymentMode.set($event)"
+            />
+            <span>💵 Cash on Delivery</span>
+          </label>
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert error">{{ errorMessage() }}</div>
+      }
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeCheckout()">Cancel</button>
+        <button
+          class="btn-primary"
+          (click)="placeOrder()"
+          [disabled]="placingOrder()"
+        >
+          {{ placingOrder() ? 'Placing...' : 'Place Order' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
